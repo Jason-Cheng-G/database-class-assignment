@@ -1,0 +1,46 @@
+Name: Gong Cheng
+Student ID: 11196838
+NSID: goc558
+CMPT355 assignment 1 Part 1
+-------------------------------------------------------------------
+
+-------------------------------------------------------------------
+1) List all the possible candidate key(s) for the departments table.
+
+There are three possible candidate keys.
+No.1 :id
+No.2 :code
+No.3 :name
+
+If we didn’t use a surrogate key for the primary key on the enrolments table, what would
+you have used as a natural primary key instead and why?
+
+I would use a combination of student_id and section_id, because one student can only register in one section once which make this combination unique.
+
+
+————————------------------------------------------------------------
+2)
+a)
+one way is create an DOMAIN CONSTRAINT and apply it to the table.
+another way is alter the table using CHECK CONSTRAINT
+
+b)
+One way is this:
+
+CREATE DOMAIN genderType AS CHAR(1)CHECK (VALUE IN ('M','F','U','N')); 
+ALTER TABLE students
+ADD CONSTRAINT genderType;
+
+Another way is 
+
+ALTER TABLE students
+ADD CONSTRAINT gender CHAR(1) CHECK(gender IN (‘M’,’F’,’U’,’N’));
+————————————————————————————————————————————————————————————————————
+
+3)
+CREATE ASSERTION currentLowerMax 	CHECK (NOT EXISTS (SELECT *	  	  		   FROM sections				   WHERE num_enrolled > max_enrollment))
+
+
+
+
+

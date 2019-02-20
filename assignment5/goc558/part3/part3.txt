@@ -1,0 +1,17 @@
+//Gong Cheng goc558
+
+Part 3
+
+1)
+
+a.
+1, chequing, 350
+2, chequing, 100
+
+b. lost updates, 
+
+2)
+a. Non-repeatable Read, Phantom Read 
+
+3) 
+a. Dirty Read 

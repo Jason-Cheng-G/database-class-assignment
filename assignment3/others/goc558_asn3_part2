@@ -1,0 +1,37 @@
+cmpt355_goc558=> \copy load_departments from 'assgn3-departmentFile.csv' DELIMITER ',' CSV HEADER
+COPY 6
+cmpt355_goc558=> \copy load_jobs from 'assgn3-jobFile.csv' DELIMITER ',' CSV HEADER
+COPY 32
+cmpt355_goc558=> \copy load_locations from 'assgn3-locationFile.csv' DELIMITER ',' CSV HEADER
+COPY 6
+cmpt355_goc558=> \copy load_employees from 'assgn3-employeeFile.csv' DELIMITER ',' CSV HEADER
+ERROR:  invalid byte sequence for encoding "UTF8": 0x8f
+CONTEXT:  COPY load_employees, line 17
+
+17 line Trois-Rivires
+84 line Les Cdres 
+85 line LiAssomption 
+98 line 
+135 Jonquire
+136 Rivire-du-Loup
+149 O'Ruane
+220 Sainte-Therse
+229 Jonquire
+229 Sainte-Therse
+242 Gananoque
+252 Rivire-du-Loup
+257 LEpiphanie
+278
+290 Sainte-Adle
+373 Sainte-Adle
+425 Les Cdres
+473 Rivire-du-Loup
+556 Sainte-Adle
+572 Les Cdres
+608 Trois-Rivires
+702 Trois-Rivires
+339 OHanvey
+554 Les Cdres
+
+cmpt355_goc558=> \copy load_employees from 'assgn3-employeeFile.csv' DELIMITER ',' CSV HEADER
+COPY 852

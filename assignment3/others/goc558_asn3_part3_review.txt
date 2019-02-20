@@ -1,0 +1,42 @@
+------------assignment 3 part 3  REVIEW------------------------
+------goc558 Gong Cheng 11196838------------------------
+
+1.Explain what changes you made to your database in Part 1 and why.
+
+I Updated Emplyees Table to add multiple coloumn such as e_birthdate, e_marital_status,e_email_home,e_employ_status,e_l_performance_review_Text,e_l_performance_review_datee_l_performance_review_rating. And also I updated Employee_Job table to include multiple column such as ej_standard_hours, ej_contract_lenghth_type,ej_contract_type. Appropriated Domain Constraint were set up to make the database more robust like ContractType, ContractLenghthType,EmploymentStatus.
+All the updates are made to make sure the updated client requirement can be accommodated.
+
+
+2. When I try to load the table there were some strange characters that prevented me from loading the table, so I did so many manual check up. All the strange character positions are attached at the end of this question. Also when I try to load data to department table, I need to find what departments are available in each location using designed query to make sure no empty department are added. Also, When I try to load department table, I realize I need to have job_id from table 
+Jobs, but if I load jobs table first, I need to have department id as well. Eventually I came up with the idea that load the department table first but leave the manager_job_id empty for now. And after I loaded jobs table, I came back to load the manger job id field.
+
+
+cmpt355_goc558=> \copy load_employees from 'assgn3-employeeFile.csv' DELIMITER ',' CSV HEADER
+ERROR:  invalid byte sequence for encoding "UTF8": 0x8f
+CONTEXT:  COPY load_employees, line 17
+17 line Trois-Rivires
+84 line Les Cdres 
+85 line LiAssomption 
+98 line 
+135 Jonquire
+136 Rivire-du-Loup
+149 O'Ruane
+220 Sainte-Therse
+229 Jonquire
+229 Sainte-Therse
+242 Gananoque
+252 Rivire-du-Loup
+257 LEpiphanie
+278
+290 Sainte-Adle
+373 Sainte-Adle
+425 Les Cdres
+473 Rivire-du-Loup
+556 Sainte-Adle
+572 Les Cdres
+608 Trois-Rivires
+702 Trois-Rivires
+339 OHanvey
+554 Les Cdres
+
+

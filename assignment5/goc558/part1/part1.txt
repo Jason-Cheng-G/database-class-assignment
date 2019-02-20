@@ -1,0 +1,183 @@
+ 
+Gong Cheng 
+goc558
+11196838
+
+Part1
+————————————————————————————————————————————————————————————————————————
+***the transcript from executing part1.sql is at the end of this file****
+————————————————————————————————————————————————————————————————————————
+
+
+a. the table is filled out in spreadsheet and screenshot. See picture file part1table.png
+
+
+b. Adding index 1 increased the  Execution time and the planning time in Query1 and Query2. Adding index 2 decreased the execution time and slightly increased planning time for Query 3. Adding index 3 decreased the execution time and slightly increased planning time for Query4. 
+
+c. It is a bit unexpected. I thought there were more than 800 record in the employee histories table, index should help speed the query up. The reasons for this are twofold, one is two indexes on one table are affecting the performance too much. Another one is even after adding the index, it is still doing sequential scan. So obviously it will slow it down.
+
+For Index 2, after the index is created, there were index scan first you can see in the transcript that speed things up. and For index 3, after the index is created, you can see it is doing bitmap heap scan first which is more efficient. Also there were too many joins and creating index on foreign keys will also speed things up.
+
+
+
+
+
+
+
+
+————————————————————————————————————————————————————————————————————————————————————————————————
+Transcript from Terminal
+——————————————————————————————————————————————————————————————————————————————————————————————————
+                                                                                                     QUERY PLAN                                                    
+------------------------------------------------------------------------------------------------------------------
+ Seq Scan on employee_histories eh  (cost=0.00..52.73 rows=8 width=348) (actual time=0.084..0.524 rows=6 loops=1)
+   Filter: ((first_name)::text ~~ 'Cla%'::text)
+   Rows Removed by Filter: 852
+ Planning time: 0.289 ms
+ Execution time: 0.591 ms
+(5 rows)
+
+                                                      QUERY PLAN                                                      
+----------------------------------------------------------------------------------------------------------------------
+ Seq Scan on employee_histories eh  (cost=0.00..52.73 rows=850 width=348) (actual time=0.018..0.742 rows=852 loops=1)
+   Filter: ((first_name)::text !~~ 'Cla%'::text)
+   Rows Removed by Filter: 6
+ Planning time: 0.179 ms
+ Execution time: 1.082 ms
+(5 rows)
+
+CREATE INDEX
+CREATE INDEX
+                                                    QUERY PLAN                                                    
+------------------------------------------------------------------------------------------------------------------
+ Seq Scan on employee_histories eh  (cost=0.00..52.73 rows=8 width=348) (actual time=0.108..0.587 rows=6 loops=1)
+   Filter: ((first_name)::text ~~ 'Cla%'::text)
+   Rows Removed by Filter: 852
+ Planning time: 0.546 ms
+ Execution time: 0.710 ms
+(5 rows)
+
+                                                      QUERY PLAN                                                      
+----------------------------------------------------------------------------------------------------------------------
+ Seq Scan on employee_histories eh  (cost=0.00..52.73 rows=850 width=348) (actual time=0.017..1.655 rows=852 loops=1)
+   Filter: ((first_name)::text !~~ 'Cla%'::text)
+   Rows Removed by Filter: 6
+ Planning time: 0.970 ms
+ Execution time: 1.990 ms
+(5 rows)
+
+                                                                                    QUERY PLAN                                                                                    
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Merge Join  (cost=54.24..197.28 rows=1 width=696) (actual time=3.116..23.808 rows=77 loops=1)
+   Merge Cond: (e.id = ej.employee_id)
+   Join Filter: ((SubPlan 1) = ej.effective_date)
+   ->  Nested Loop  (cost=0.28..117.49 rows=17 width=235) (actual time=0.071..3.631 rows=368 loops=1)
+         Join Filter: (e.employment_status_id = es.id)
+         Rows Removed by Join Filter: 1342
+         ->  Index Scan using employees_pkey on employees e  (cost=0.28..80.58 rows=855 width=21) (actual time=0.014..0.837 rows=855 loops=1)
+         ->  Materialize  (cost=0.00..11.26 rows=2 width=222) (actual time=0.000..0.001 rows=2 loops=855)
+               ->  Seq Scan on employment_status_types es  (cost=0.00..11.25 rows=2 width=222) (actual time=0.019..0.024 rows=2 loops=1)
+                     Filter: ((name)::text = ANY ('{Active,"Paid Leave"}'::text[]))
+                     Rows Removed by Filter: 3
+   ->  Sort  (cost=53.96..53.99 rows=12 width=469) (actual time=2.611..2.729 rows=186 loops=1)
+         Sort Key: ej.employee_id
+         Sort Method: quicksort  Memory: 48kB
+         ->  Hash Join  (cost=26.85..53.75 rows=12 width=469) (actual time=1.460..2.427 rows=186 loops=1)
+               Hash Cond: (ej.job_id = j.id)
+               ->  Seq Scan on employee_jobs ej  (cost=0.00..23.56 rows=856 width=20) (actual time=0.013..0.383 rows=856 loops=1)
+               ->  Hash  (cost=26.82..26.82 rows=2 width=457) (actual time=1.405..1.405 rows=26 loops=1)
+                     Buckets: 1024  Batches: 1  Memory Usage: 11kB
+                     ->  Hash Join  (cost=21.95..26.82 rows=2 width=457) (actual time=1.186..1.365 rows=26 loops=1)
+                           Hash Cond: (j.department_id = d.id)
+                           ->  Seq Scan on jobs j  (cost=0.00..4.35 rows=135 width=25) (actual time=0.005..0.057 rows=135 loops=1)
+                           ->  Hash  (cost=21.89..21.89 rows=4 width=440) (actual time=1.156..1.156 rows=5 loops=1)
+                                 Buckets: 1024  Batches: 1  Memory Usage: 9kB
+                                 ->  Hash Join  (cost=8.17..21.89 rows=4 width=440) (actual time=1.120..1.145 rows=5 loops=1)
+                                       Hash Cond: (d.location_id = l.id)
+                                       ->  Seq Scan on departments d  (cost=0.00..12.70 rows=270 width=226) (actual time=0.007..0.017 rows=26 loops=1)
+                                       ->  Hash  (cost=8.16..8.16 rows=1 width=222) (actual time=1.067..1.067 rows=1 loops=1)
+                                             Buckets: 1024  Batches: 1  Memory Usage: 9kB
+                                             ->  Index Scan using locations_code_key on locations l  (cost=0.14..8.16 rows=1 width=222) (actual time=0.014..1.053 rows=1 loops=1)
+                                                   Index Cond: ((code)::text = 'SKTN-MT'::text)
+   SubPlan 1
+     ->  Aggregate  (cost=25.70..25.71 rows=1 width=4) (actual time=0.219..0.219 rows=1 loops=77)
+           ->  Seq Scan on employee_jobs ej2  (cost=0.00..25.70 rows=1 width=4) (actual time=0.104..0.215 rows=1 loops=77)
+                 Filter: (employee_id = e.id)
+                 Rows Removed by Filter: 855
+ Planning time: 2.106 ms
+ Execution time: 24.116 ms
+(38 rows)
+
+CREATE INDEX
+CREATE INDEX
+                                                                                 QUERY PLAN                                                                                 
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Nested Loop  (cost=71.74..128.42 rows=1 width=696) (actual time=9.401..12.981 rows=77 loops=1)
+   ->  Hash Join  (cost=71.59..128.19 rows=1 width=482) (actual time=9.360..12.032 rows=186 loops=1)
+         Hash Cond: ((ej.employee_id = e.id) AND (ej.effective_date = (SubPlan 1)))
+         ->  Nested Loop  (cost=22.22..28.89 rows=12 width=469) (actual time=0.165..0.825 rows=186 loops=1)
+               ->  Hash Join  (cost=21.95..26.82 rows=2 width=457) (actual time=0.150..0.320 rows=26 loops=1)
+                     Hash Cond: (j.department_id = d.id)
+                     ->  Seq Scan on jobs j  (cost=0.00..4.35 rows=135 width=25) (actual time=0.013..0.055 rows=135 loops=1)
+                     ->  Hash  (cost=21.89..21.89 rows=4 width=440) (actual time=0.108..0.108 rows=5 loops=1)
+                           Buckets: 1024  Batches: 1  Memory Usage: 9kB
+                           ->  Hash Join  (cost=8.17..21.89 rows=4 width=440) (actual time=0.074..0.099 rows=5 loops=1)
+                                 Hash Cond: (d.location_id = l.id)
+                                 ->  Seq Scan on departments d  (cost=0.00..12.70 rows=270 width=226) (actual time=0.007..0.017 rows=26 loops=1)
+                                 ->  Hash  (cost=8.16..8.16 rows=1 width=222) (actual time=0.027..0.027 rows=1 loops=1)
+                                       Buckets: 1024  Batches: 1  Memory Usage: 9kB
+                                       ->  Index Scan using locations_code_key on locations l  (cost=0.14..8.16 rows=1 width=222) (actual time=0.018..0.019 rows=1 loops=1)
+                                             Index Cond: ((code)::text = 'SKTN-MT'::text)
+               ->  Index Scan using employee_jobs_job_id on employee_jobs ej  (cost=0.28..0.97 rows=6 width=20) (actual time=0.005..0.012 rows=7 loops=26)
+                     Index Cond: (job_id = j.id)
+         ->  Hash  (cost=36.55..36.55 rows=855 width=21) (actual time=9.142..9.142 rows=855 loops=1)
+               Buckets: 1024  Batches: 1  Memory Usage: 56kB
+               ->  Seq Scan on employees e  (cost=0.00..36.55 rows=855 width=21) (actual time=0.006..0.875 rows=855 loops=1)
+         SubPlan 1
+           ->  Aggregate  (cost=8.29..8.30 rows=1 width=4) (actual time=0.007..0.007 rows=1 loops=1041)
+                 ->  Index Scan using employee_jobs_employee_id on employee_jobs ej2  (cost=0.28..8.29 rows=1 width=4) (actual time=0.004..0.005 rows=1 loops=1041)
+                       Index Cond: (employee_id = e.id)
+   ->  Index Scan using employment_status_types_pkey on employment_status_types es  (cost=0.14..0.22 rows=1 width=222) (actual time=0.003..0.004 rows=0 loops=186)
+         Index Cond: (id = e.employment_status_id)
+         Filter: ((name)::text = ANY ('{Active,"Paid Leave"}'::text[]))
+         Rows Removed by Filter: 1
+ Planning time: 3.874 ms
+ Execution time: 13.312 ms
+(31 rows)
+
+                                                                                QUERY PLAN                                                                                 
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Nested Loop  (cost=0.00..69.81 rows=1 width=237) (actual time=0.052..1.556 rows=30 loops=1)
+   Join Filter: (e.employment_status_id = es.id)
+   Rows Removed by Join Filter: 32
+   ->  Seq Scan on employees e  (cost=0.00..57.93 rows=21 width=23) (actual time=0.035..1.430 rows=31 loops=1)
+         Filter: ((birth_date > (('now'::cstring)::date - '30 years'::interval)) AND (COALESCE(termination_date, (('now'::cstring)::date + 1)) >= ('now'::cstring)::date))
+         Rows Removed by Filter: 824
+   ->  Materialize  (cost=0.00..11.26 rows=2 width=222) (actual time=0.001..0.002 rows=2 loops=31)
+         ->  Seq Scan on employment_status_types es  (cost=0.00..11.25 rows=2 width=222) (actual time=0.008..0.012 rows=2 loops=1)
+               Filter: ((name)::text = ANY ('{Active,"Paid Leave"}'::text[]))
+               Rows Removed by Filter: 3
+ Planning time: 0.332 ms
+ Execution time: 1.617 ms
+(12 rows)
+
+CREATE INDEX
+                                                             QUERY PLAN                                                             
+------------------------------------------------------------------------------------------------------------------------------------
+ Hash Join  (cost=16.03..46.29 rows=1 width=237) (actual time=0.107..0.299 rows=30 loops=1)
+   Hash Cond: (e.employment_status_id = es.id)
+   ->  Bitmap Heap Scan on employees e  (cost=4.75..34.92 rows=21 width=23) (actual time=0.074..0.220 rows=31 loops=1)
+         Recheck Cond: (birth_date > (('now'::cstring)::date - '30 years'::interval))
+         Filter: (COALESCE(termination_date, (('now'::cstring)::date + 1)) >= ('now'::cstring)::date)
+         Rows Removed by Filter: 32
+         Heap Blocks: exact=15
+         ->  Bitmap Index Scan on employees_birthdate  (cost=0.00..4.75 rows=62 width=0) (actual time=0.055..0.055 rows=63 loops=1)
+               Index Cond: (birth_date > (('now'::cstring)::date - '30 years'::interval))
+   ->  Hash  (cost=11.25..11.25 rows=2 width=222) (actual time=0.020..0.020 rows=2 loops=1)
+         Buckets: 1024  Batches: 1  Memory Usage: 9kB
+         ->  Seq Scan on employment_status_types es  (cost=0.00..11.25 rows=2 width=222) (actual time=0.010..0.015 rows=2 loops=1)
+               Filter: ((name)::text = ANY ('{Active,"Paid Leave"}'::text[]))
+               Rows Removed by Filter: 3
+ Planning time: 0.475 ms
+ Execution time: 0.375 ms
+(16 rows)

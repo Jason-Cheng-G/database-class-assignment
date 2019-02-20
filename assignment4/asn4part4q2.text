@@ -1,0 +1,14 @@
+----Gong Cheng
+----NSID goc558
+----Student ID 11196838
+
+
+I added primary key for my employee_audit, employee_job_audit and employee_history. They are all serialized incremental integer. Even thou the assignment description didn’t mention we have to have that. Also assignment description says we should include pay type but didn’t mention what information about pay type. So I choose to store pay type id, pay type code and pay type name.
+
+For audit table, I used after insert, delete, update. Cause any activities on that table should be logged. 
+
+I turned off all the triggers when running the load procedure due to performance concern.
+
+When I added trigger, at first it was not working because select is not allowed in that situation. So I changed it to Perform.
+
+ALso the data type is not suffient enought to hold all the data so I changed the phone_number column type from VARCHAR(7) to VARCHAR(14).
